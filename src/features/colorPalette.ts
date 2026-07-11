@@ -1,0 +1,21 @@
+/** Paleta padrão dos pickers de cor do texto e cor de fundo. */
+export const DEFAULT_COLOR_PALETTE: readonly string[] = [
+  "#000000",
+  "#424242",
+  "#757575",
+  "#bdbdbd",
+  "#eeeeee",
+  "#ffffff",
+  "#b71c1c",
+  "#e53935",
+  "#f57c00",
+  "#fbc02d",
+  "#388e3c",
+  "#00897b",
+  "#1565c0",
+  "#42a5f5",
+  "#5e35b1",
+  "#8e24aa",
+  "#d81b60",
+  "#6d4c41",
+];
