@@ -17,10 +17,15 @@ export default defineConfig({
         /^@emotion\/styled(?:\/.*)?$/,
       ],
     },
-    sourcemap: true,
+    // Sem sourcemaps na publicação: ~65% menor, sem perda de funcionalidade
+    // (os .map só servem a step-through no bundle; os .d.ts continuam saindo).
+    sourcemap: false,
   },
   plugins: [
     dts({
+      // Sem declaration maps: só seriam úteis com os .ts de origem, que não
+      // publicamos. Os .d.ts (tipos) continuam saindo normalmente.
+      compilerOptions: { declarationMap: false },
       entryRoot: "src",
       exclude: ["src/**/*.test.ts"],
       insertTypesEntry: true,
