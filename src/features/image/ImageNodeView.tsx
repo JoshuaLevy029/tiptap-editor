@@ -49,8 +49,9 @@ export function ImageNodeView({
   selected,
   updateAttributes,
 }: NodeViewProps) {
-  const wrapperRef = useRef<HTMLDivElement | null>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
+  const [wrapperElement, setWrapperElement] =
+    useState<HTMLDivElement | null>(null);
   const [dragWidth, setDragWidth] = useState<number | null>(null);
   const [altAnchor, setAltAnchor] = useState<HTMLElement | null>(null);
   const [altDraft, setAltDraft] = useState("");
@@ -137,7 +138,7 @@ export function ImageNodeView({
   return (
     <NodeViewWrapper>
       <Box
-        ref={wrapperRef}
+        ref={setWrapperElement}
         sx={{
           maxWidth: "100%",
           ml: align === "left" ? 0 : "auto",
@@ -240,68 +241,80 @@ export function ImageNodeView({
         ) : null}
       </Box>
 
-      <Popper
-        anchorEl={wrapperRef.current}
-        open={active}
-        placement="top"
-        sx={{ zIndex: (theme) => theme.zIndex.tooltip }}
-      >
-        <Paper
-          elevation={3}
-          sx={{ borderRadius: 2, display: "flex", gap: 0.25, mb: 1, p: 0.5 }}
+      {wrapperElement !== null ? (
+        <Popper
+          anchorEl={wrapperElement}
+          open={active}
+          placement="top"
+          sx={{ zIndex: (theme) => theme.zIndex.tooltip }}
         >
-          <Tooltip title="Texto alternativo (alt)">
-            <Button
-              aria-label="Editar texto alternativo"
-              onClick={(event) => openAlt(event)}
-              size="small"
-              sx={{
-                border: 1,
-                borderColor:
-                  typeof node.attrs.alt === "string" &&
-                  node.attrs.alt.length > 0
-                    ? "primary.main"
-                    : "divider",
-                borderRadius: 1,
-                fontSize: "0.65rem",
-                fontWeight: 700,
-                minWidth: 0,
-                px: 0.75,
-              }}
+          <Paper
+            elevation={3}
+            sx={{
+              borderRadius: 2,
+              display: "flex",
+              gap: 0.25,
+              mb: 1,
+              p: 0.5,
+            }}
+          >
+            <Tooltip title="Texto alternativo (alt)">
+              <Button
+                aria-label="Editar texto alternativo"
+                onClick={(event) => openAlt(event)}
+                size="small"
+                sx={{
+                  border: 1,
+                  borderColor:
+                    typeof node.attrs.alt === "string" &&
+                    node.attrs.alt.length > 0
+                      ? "primary.main"
+                      : "divider",
+                  borderRadius: 1,
+                  fontSize: "0.65rem",
+                  fontWeight: 700,
+                  minWidth: 0,
+                  px: 0.75,
+                }}
+              >
+                ALT
+              </Button>
+            </Tooltip>
+            {ALIGNMENTS.map((item) => (
+              <Tooltip key={item.value} title={ALIGN_LABELS[item.value]}>
+                <IconButton
+                  aria-label={ALIGN_LABELS[item.value]}
+                  color={align === item.value ? "primary" : "default"}
+                  onClick={() => updateAttributes({ align: item.value })}
+                  size="small"
+                  sx={{ borderRadius: 1 }}
+                >
+                  <Icon icon={item.icon} />
+                </IconButton>
+              </Tooltip>
+            ))}
+            <Tooltip
+              title={
+                caption === null ? "Adicionar legenda" : "Remover legenda"
+              }
             >
-              ALT
-            </Button>
-          </Tooltip>
-          {ALIGNMENTS.map((item) => (
-            <Tooltip key={item.value} title={ALIGN_LABELS[item.value]}>
               <IconButton
-                aria-label={ALIGN_LABELS[item.value]}
-                color={align === item.value ? "primary" : "default"}
-                onClick={() => updateAttributes({ align: item.value })}
+                aria-label={
+                  caption === null ? "Adicionar legenda" : "Remover legenda"
+                }
+                color={caption === null ? "default" : "primary"}
+                onClick={() =>
+                  updateAttributes({ caption: caption === null ? "" : null })
+                }
                 size="small"
                 sx={{ borderRadius: 1 }}
               >
-                <Icon icon={item.icon} />
+                <Icon icon="material-symbols:closed-caption-outline" />
               </IconButton>
             </Tooltip>
-          ))}
-          <Tooltip title={caption === null ? "Adicionar legenda" : "Remover legenda"}>
-            <IconButton
-              aria-label={
-                caption === null ? "Adicionar legenda" : "Remover legenda"
-              }
-              color={caption === null ? "default" : "primary"}
-              onClick={() =>
-                updateAttributes({ caption: caption === null ? "" : null })
-              }
-              size="small"
-              sx={{ borderRadius: 1 }}
-            >
-              <Icon icon="material-symbols:closed-caption-outline" />
-            </IconButton>
-          </Tooltip>
-        </Paper>
-      </Popper>
+          </Paper>
+        </Popper>
+      ) : null}
 
       <Popover
         anchorEl={altAnchor}

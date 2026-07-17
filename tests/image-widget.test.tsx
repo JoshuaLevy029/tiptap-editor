@@ -1,6 +1,6 @@
 import { act, cleanup, render, screen } from "@testing-library/react";
 import { createRef } from "react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Editor } from "../src/Editor";
 import {
   clampImageWidth,
@@ -31,6 +31,41 @@ describe("imageMarkup — helpers puros", () => {
 });
 
 describe("imagem — serialização com largura, alinhamento e legenda", () => {
+  it("só abre os controles depois que a âncora da imagem existe", async () => {
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => undefined);
+    const ref = createRef<EditorHandle>();
+
+    try {
+      render(<Editor ref={ref} />);
+      await screen.findByRole("textbox");
+
+      act(() => {
+        ref.current
+          ?.getEditor()
+          ?.chain()
+          .focus()
+          .insertContent({
+            attrs: { src: "https://example.com/ancora.png" },
+            type: "image",
+          })
+          .run();
+      });
+
+      expect(
+        await screen.findByRole("button", {
+          name: "Editar texto alternativo",
+        }),
+      ).toBeTruthy();
+      expect(consoleError.mock.calls.flat().join("\n")).not.toContain(
+        "The `anchorEl` prop provided to the component is invalid",
+      );
+    } finally {
+      consoleError.mockRestore();
+    }
+  });
+
   it("emite figure/figcaption quando há legenda e faz round-trip", async () => {
     const ref = createRef<EditorHandle>();
 
